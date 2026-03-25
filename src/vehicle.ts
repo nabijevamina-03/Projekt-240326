@@ -1,47 +1,52 @@
 export abstract class Vehicle {
 
-  id: number;                               // eindeutige ID
-  name: string;                             // Name (z.B. "Scooter 1")
-  battery: number;                          // Akkustand in %
-  rentedCount: number = 0;                  // wie oft ausgeliehen
-  inMaintenance: boolean = false;           // Wartung ja/nein
+  id: number;
+  name: string;
+  battery: number;
+  rentedCount: number = 0;
+  inMaintenance: boolean = false;
 
-  // Konstruktor → aufgerufen beim Erstellen
+  // Konstruktor
   constructor(id: number, name: string, battery: number = 100) {
     this.id = id;
     this.name = name;
     this.battery = battery;
   }
 
-// Preis pro min
+  // Preis pro Minute
   abstract pricePerMinute(): number;
 
-// Preis berechnen
+  // Preis berechnen
   calculatePrice(minutes: number): number {
-    return this.pricePerMinute() * minutes;
+  if (minutes <= 0) {
+    return 0;
   }
+  return this.pricePerMinute() * minutes;
+}
 
-// Fahrzeug mieten
+  // Fahrzeug mieten
   rent() {
-
     if (this.inMaintenance) {
-      console.log("Fahrzeug in Wartung!");
+      console.log("Fahrzeug ist in Wartung!");
       return false;
-    }
 
-    if (this.battery < 20) {
+    } else if (this.battery < 20) {
       console.log("Batterie zu niedrig!");
       return false;
+
+    } else {
+      this.rentedCount++;
+      this.battery = Math.max(0, this.battery - 10);
+
+      console.log("Fahrzeug erfolgreich gemietet!");
+
+      if (this.rentedCount >= 5) {
+        this.inMaintenance = true;
+        console.log("Fahrzeug muss jetzt in Wartung!");
+      }
+
+      return true;
     }
-
-    this.rentedCount++;
-
-    if (this.rentedCount >= 5) {
-      this.inMaintenance = true;
-      console.log("Fahrzeug muss jetzt in Wartung!");
-    }
-
-    return true;
   }
 
   // Wartung zurücksetzen
@@ -50,4 +55,9 @@ export abstract class Vehicle {
     this.rentedCount = 0;
     console.log("Fahrzeug wurde repariert");
   }
+
+  // Status anzeigen
+  getStatus(): string {
+    return `ID: ${this.id}, Name: ${this.name}, Akku: ${this.battery}%, Wartung: ${this.inMaintenance}`;
+}
 }
